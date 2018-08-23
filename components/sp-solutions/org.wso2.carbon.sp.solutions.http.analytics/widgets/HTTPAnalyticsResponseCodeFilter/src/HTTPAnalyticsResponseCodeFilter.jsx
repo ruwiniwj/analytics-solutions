@@ -21,11 +21,9 @@ import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import CancelIcon from '@material-ui/icons/Cancel';
-import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
-import ClearIcon from '@material-ui/icons/Clear';
 import Chip from '@material-ui/core/Chip';
+import Paper from "@material-ui/core/Paper";
+import Popper from "@material-ui/core/Popper";
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Select from 'react-select';
@@ -101,71 +99,148 @@ const customStyles = {
     }),
 };
 
-/**
- * Options class passed to the react-select component
- */
-class Option extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
-    render() {
-        const {children, isFocused, onFocus, isDisabled} = this.props;
-        return (
-            <MenuItem
-                onFocus={onFocus}
-                selected={isFocused}
-                disabled={isDisabled}
-                onClick={() => this.props.onSelect(this.props.option, event)}
-                component="div"
-            >
-                {children}
-            </MenuItem>
-        );
-    }
-}
+let openPopper = false;
 
-/**
- * Function to wrap react-select component
- * @param props
- * @returns <Select> componet
- * @constructor
- */
-function SelectWrapped(props) {
-    const {classes, ...other} = props;
+function NoOptionsMessage(props) {
     return (
-        <Select
-            styles={props.muiTheme.name === 'dark' ? customStyles : {}}
-            optionComponent={Option}
-            noResultsText={<div>{'No results found'}</div>}
-            arrowRenderer={arrowProps => {
-                return arrowProps.isOpen ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>;
+        <Typography
+            style={{
+                padding: 15,
+                color: '#7e7e7e'
             }}
-            clearRenderer={() => <ClearIcon/>}
-            valueComponent={valueProps => {
-                const {value, children, onRemove} = valueProps;
-                const onDelete = event => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    onRemove(value);
-                };
-                if (onRemove) {
-                    return (
-                        <Chip
-                            tabIndex={-1}
-                            label={children}
-                            className={classes.chip}
-                            deleteIcon={<CancelIcon onTouchEnd={onDelete}/>}
-                            onDelete={onDelete}
-                        />
-                    );
-                }
-                return <div className="Select-value">{children}</div>;
-            }}
-            {...other}
-        />
+            {...props.innerProps}>
+            {props.children}
+        </Typography>
     );
 }
+
+function inputComponent({inputRef, ...props}) {
+    return <div
+        ref={inputRef}
+        {...props}/>;
+}
+
+function Control(props) {
+    openPopper = props.selectProps.menuIsOpen;
+    return (
+        <TextField
+            id='popperAnchorTextField'
+            style={{display: 'flex'}}
+            fullWidth={true}
+            InputProps={{
+                inputComponent,
+                inputProps: {
+                    inputRef: props.innerRef,
+                    children: props.children,
+                    ...props.innerProps,
+                },
+            }}
+            {...props.selectProps.textFieldProps}/>
+    );
+}
+
+function Option(props) {
+    return (
+        <MenuItem
+            buttonRef={props.innerRef}
+            selected={props.isFocused}
+            component='div'
+            style={{
+                fontWeight: props.isSelected ? 500 : 400,
+            }}
+            {...props.innerProps}>
+            {props.children}
+        </MenuItem>
+    );
+}
+
+function Placeholder(props) {
+    return (
+        <Typography
+            style={{
+                position: 'absolute',
+                left: 2,
+                fontSize: '90%',
+                color: '#7e7e7e'
+            }}
+            {...props.innerProps}>
+            {props.children}
+        </Typography>
+    );
+}
+
+function SingleValue(props) {
+    return (
+        <Typography {...props.innerProps}>
+            {props.children}
+        </Typography>
+    );
+}
+
+function ValueContainer(props) {
+    return (
+        <div
+            style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                flex: 1,
+                alignItems: 'center',
+            }}>
+            {props.children}
+        </div>);
+}
+
+function MultiValue(props) {
+    return (
+        <Chip
+            tabIndex={-1}
+            label={props.children}
+            onDelete={event => {
+                props.removeProps.onClick();
+                props.removeProps.onMouseDown(event);
+            }}
+            style={{
+                borderRadius: 15,
+                display: 'flex',
+                flexWrap: 'wrap',
+                fontSize: '90%',
+                overflow: 'hidden',
+                paddingLeft: 6,
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                minWidth: '20',
+                margin: 2
+            }}/>
+    );
+}
+
+function Menu(props) {
+    let popperNode = document.getElementById('popperAnchorTextField');
+    return (
+        <Popper
+            open={openPopper}
+            anchorEl={popperNode}>
+            <Paper
+                square
+                style={{width: popperNode ? popperNode.clientWidth : null}}
+                {...props.innerProps}>
+                {props.children}
+            </Paper>
+        </Popper>
+    );
+}
+
+const components = {
+    Option,
+    Control,
+    NoOptionsMessage,
+    Placeholder,
+    SingleValue,
+    MultiValue,
+    ValueContainer,
+    Menu,
+};
 
 /**
  * HTTPAnalyticsResponseCodeFilter which renders the perspective and filter in response code analytics page
@@ -271,26 +346,23 @@ class HTTPAnalyticsResponseCodeFilter extends Widget {
                                 onChange={(evt, value) => this.setState({perspective: value}, this.publishUpdate)}>
                                 <Tab value={3} label="Response Code"/>
                             </Tabs>
-                            <TextField
-                                    fullWidth
-                                    value={this.state.selectedServiceValues}
-                                    onChange={this.handleChange}
-                                    placeholder="Filter by Service"
-                                    label=""
-                                    InputLabelProps={{
+                            <Select
+                                className='autocomplete'
+                                classNamePrefix='autocomplete'
+                                styles={this.props.muiTheme.name === 'dark' ? customStyles : {}}
+                                classes={classes}
+                                textFieldProps={{
+                                    label: '',
+                                    InputLabelProps: {
                                         shrink: false,
-                                    }}
-                                    InputProps={{
-                                        inputComponent: SelectWrapped,
-                                        inputProps: {
-                                            classes,
-                                            isMulti: false,
-                                            simpleValue: true,
-                                            options: this.state.serviceOptions,
-                                            muiTheme: this.props.muiTheme,
-                                        }
-                                    }}
-                                />
+                                    },
+                                }}
+                                options={this.state.serviceOptions}
+                                components={components}
+                                value={this.state.selectedServiceValues}
+                                onChange={this.handleChange}
+                                placeholder='Filter by Service'
+                            />
                             </div>
                     </Scrollbars>
                 </MuiThemeProvider>
