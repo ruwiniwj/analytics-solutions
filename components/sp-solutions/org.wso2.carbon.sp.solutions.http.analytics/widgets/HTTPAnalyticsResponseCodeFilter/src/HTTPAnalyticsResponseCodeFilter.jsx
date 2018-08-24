@@ -225,7 +225,10 @@ function Menu(props) {
                 square
                 style={{width: popperNode ? popperNode.clientWidth : null}}
                 {...props.innerProps}>
-                {props.children}
+                <Scrollbars
+                    style={{height: 250}}>
+                    {props.children}
+                </Scrollbars>
             </Paper>
         </Popper>
     );
@@ -305,7 +308,7 @@ class HTTPAnalyticsResponseCodeFilter extends Widget {
      * Publish user selection in filters
      * @param values
      */
-    handleChange(values){
+    handleChange(values) {
         let updatedOptions = this.state.services.map(option => ({
             value: option,
             label: option,
@@ -363,7 +366,7 @@ class HTTPAnalyticsResponseCodeFilter extends Widget {
                                 onChange={this.handleChange}
                                 placeholder='Filter by Service'
                             />
-                            </div>
+                        </div>
                     </Scrollbars>
                 </MuiThemeProvider>
             </JssProvider>
