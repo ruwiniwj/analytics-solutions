@@ -226,7 +226,9 @@ function Menu(props) {
                 style={{width: popperNode ? popperNode.clientWidth : null}}
                 {...props.innerProps}>
                 <Scrollbars
-                    style={{height: 250}}>
+                    autoHeight
+                    autoHeightMin={0}
+                    autoHeightMax={250}>
                     {props.children}
                 </Scrollbars>
             </Paper>
