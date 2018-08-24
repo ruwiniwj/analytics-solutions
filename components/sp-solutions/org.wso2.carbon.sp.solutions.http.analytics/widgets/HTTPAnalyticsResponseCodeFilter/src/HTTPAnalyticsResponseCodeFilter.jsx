@@ -18,7 +18,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Widget from '@wso2-dashboards/widget';
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
