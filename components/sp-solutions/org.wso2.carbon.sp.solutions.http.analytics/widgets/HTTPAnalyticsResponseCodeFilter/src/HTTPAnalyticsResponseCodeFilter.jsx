@@ -125,7 +125,7 @@ function Control(props) {
     openPopper = props.selectProps.menuIsOpen;
     return (
         <TextField
-            id='popperAnchorTextField'
+            id='popper-anchor-http-response-code-filter'
             style={{display: 'flex'}}
             fullWidth={true}
             InputProps={{
@@ -216,7 +216,7 @@ function MultiValue(props) {
 }
 
 function Menu(props) {
-    let popperNode = document.getElementById('popperAnchorTextField');
+    let popperNode = document.getElementById('popper-anchor-http-response-code-filter');
     return (
         <Popper
             open={openPopper}
