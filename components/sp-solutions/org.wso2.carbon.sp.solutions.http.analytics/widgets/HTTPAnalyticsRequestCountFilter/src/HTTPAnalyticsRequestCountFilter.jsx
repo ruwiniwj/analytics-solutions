@@ -229,7 +229,10 @@ function Menu(props) {
                 square
                 style={{width: popperNode ? popperNode.clientWidth : null}}
                 {...props.innerProps}>
-                {props.children}
+                <Scrollbars
+                    style={{height: 250}}>
+                    {props.children}
+                </Scrollbars>
             </Paper>
         </Popper>
     );
@@ -515,7 +518,7 @@ export const generateClassName = (rule, styleSheet) => {
         if (prefix.match(/^Mui/)) {
             return `${prefix}-${rule.key}`;
         }
-        
+
         return `${prefix}-${rule.key}-${classCounter}`;
     }
 
