@@ -42,64 +42,6 @@ const lightTheme = createMuiTheme({
     }
 });
 
-const customStyles = {
-    input: () => ({
-        color: 'white'
-    }),
-    multiValue: () => ({
-        borderRadius: 15,
-        display: 'flex',
-        flexWrap: 'wrap',
-        color: 'black',
-        fontSize: '90%',
-        overflow: 'hidden',
-        paddingLeft: 6,
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        backgroundColor: 'darkgrey',
-        minWidth: '20'
-    }),
-    singleValue: () => ({
-        display: 'flex',
-        flexWrap: 'wrap',
-        color: 'white',
-        fontSize: '95%',
-    }),
-    control: () => ({
-        height: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        minHeight: 30,
-        backgroundColor: 'rgb(51, 51, 51)',
-        borderColor: 'grey',
-        borderStyle: 'solid',
-        borderWidth: 0,
-        boxShadow: '0 0 0 1px grey',
-        cursor: 'default',
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        outline: '0 !important',
-        position: 'relative',
-        transition: 'all 100ms',
-        paddingTop: 2
-    }),
-    option: (styles, {data, isDisabled, isFocused}) => {
-        return {
-            ...styles,
-            height: 30,
-            backgroundColor: isDisabled
-                ? null
-                : isFocused ? 'rgba(255, 255, 255, 0.1)' : null,
-        };
-    },
-
-    menuList: () => ({
-        backgroundColor: 'rgb(51, 51, 51)',
-    }),
-};
-
-
 let openPopper = false;
 
 function NoOptionsMessage(props) {
@@ -146,9 +88,7 @@ function Option(props) {
             buttonRef={props.innerRef}
             selected={props.isFocused}
             component='div'
-            style={{
-                fontWeight: props.isSelected ? 500 : 400,
-            }}
+            style={{fontWeight: props.isSelected ? 500 : 400}}
             {...props.innerProps}>
             {props.children}
         </MenuItem>
@@ -172,7 +112,14 @@ function Placeholder(props) {
 
 function SingleValue(props) {
     return (
-        <Typography {...props.innerProps}>
+        <Typography
+            style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                color: 'white',
+                fontSize: '95%'
+            }}
+            {...props.innerProps}>
             {props.children}
         </Typography>
     );
@@ -225,12 +172,7 @@ function Menu(props) {
                 square
                 style={{width: popperNode ? popperNode.clientWidth : null}}
                 {...props.innerProps}>
-                <Scrollbars
-                    autoHeight
-                    autoHeightMin={0}
-                    autoHeightMax={250}>
-                    {props.children}
-                </Scrollbars>
+                {props.children}
             </Paper>
         </Popper>
     );
@@ -342,20 +284,27 @@ class HTTPAnalyticsResponseCodeFilter extends Widget {
     render() {
         const {classes} = this.props;
         return (
-            <JssProvider generateClassName={generateClassName}>
-                <MuiThemeProvider theme={this.props.muiTheme.name === 'dark' ? darkTheme : lightTheme}>
-                    <Scrollbars style={{height: this.state.height}}>
-                        <div style={{paddingLeft: 24, paddingRight: 16}}>
+            <JssProvider
+                generateClassName={generateClassName}>
+                <MuiThemeProvider
+                    theme={this.props.muiTheme.name === 'dark' ? darkTheme : lightTheme}>
+                    <Scrollbars
+                        style={{height: this.state.height}}>
+                        <div
+                            style={{
+                                paddingLeft: 24,
+                                paddingRight: 16
+                            }}>
                             <Tabs
-                                value={this.state.perspective}
-                                onChange={(evt, value) => this.setState({perspective: value}, this.publishUpdate)}>
-                                <Tab value={3} label="Response Code"/>
+                                value={this.state.perspective}>
+                                <Tab
+                                    value={3}
+                                    label="Response Code"/>
                             </Tabs>
                             <Select
+                                classes={classes}
                                 className='autocomplete'
                                 classNamePrefix='autocomplete'
-                                styles={this.props.muiTheme.name === 'dark' ? customStyles : {}}
-                                classes={classes}
                                 textFieldProps={{
                                     label: '',
                                     InputLabelProps: {
