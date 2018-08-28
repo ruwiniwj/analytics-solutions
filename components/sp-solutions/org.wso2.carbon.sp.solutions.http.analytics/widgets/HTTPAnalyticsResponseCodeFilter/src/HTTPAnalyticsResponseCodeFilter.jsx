@@ -265,6 +265,7 @@ class HTTPAnalyticsResponseCodeFilter extends Widget {
     };
 
     componentDidMount() {
+        document.getElementById('popper-anchor-http-response-code-filter').style = 'display: flex';
         super.getWidgetConfiguration(this.props.widgetID)
             .then((message) => {
                 super.getWidgetChannelManager()
