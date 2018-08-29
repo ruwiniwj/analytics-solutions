@@ -335,7 +335,9 @@ class HTTPAnalyticsRequestCountFilter extends Widget {
     };
 
     componentDidMount() {
-        document.getElementById('popper-anchor-http-request-count-filter').style = 'display: flex';
+        if (document.getElementById('popper-anchor-http-request-count-filter')) {
+            document.getElementById('popper-anchor-http-request-count-filter').style = 'display: flex';
+        }
         super.getWidgetConfiguration(this.props.widgetID)
             .then((message) => {
                 super.getWidgetChannelManager()
