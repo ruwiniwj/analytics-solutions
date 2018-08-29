@@ -343,7 +343,7 @@ class HTTPAnalyticsRequestCountFilter extends Widget {
                 super.getWidgetChannelManager()
                     .subscribeWidget(this.props.id, this.handleDataReceived, message.data.configs.providerConfig);
             })
-            .catch((error) => {
+            .catch(() => {
                 this.setState({
                     faultyProviderConf: true
                 });
