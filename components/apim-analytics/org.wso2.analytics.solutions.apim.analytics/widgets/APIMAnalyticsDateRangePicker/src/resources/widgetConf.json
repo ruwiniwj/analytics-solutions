@@ -1,0 +1,58 @@
+{
+  "id": "APIMAnalyticsDateRangePicker",
+  "name": "APIM Analytics Date Time Range",
+  "thumbnailURL": "",
+  "configs": {
+    "pubsub": {
+      "types": [
+        "publisher"
+      ],
+      "publisherWidgetOutputs": [
+        "from",
+        "to"
+      ]
+    },
+    "options": [
+      {
+        "id": "header",
+        "title": "Header",
+        "type": {
+          "name": "BOOLEAN",
+          "possibleValues": [
+            true,
+            false
+          ]
+        },
+        "defaultValue": true
+      },
+      {
+        "id": "defaultValue",
+        "title": "Default Range",
+        "type": {
+          "name": "ENUM",
+          "possibleValues": [
+            "1 Min",
+            "15 Min",
+            "1 Hour",
+            "1 Day",
+            "1 Week",
+            "2 Weeks",
+            "1 Month",
+            "3 Months",
+            "6 Months",
+            "1 Year"
+          ]
+        },
+        "defaultValue": "1 Week"
+      },
+      {
+        "id": "autoSyncInterval",
+        "title": "Auto-Sync Interval (Seconds)",
+        "type": {
+          "name": "TEXT"
+        },
+        "defaultValue": "60"
+      }
+    ]
+  }
+}
