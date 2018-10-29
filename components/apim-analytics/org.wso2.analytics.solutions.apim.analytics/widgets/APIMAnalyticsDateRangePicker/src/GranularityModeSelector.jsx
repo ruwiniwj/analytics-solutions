@@ -58,9 +58,12 @@ export default class GranularityModeSelector extends React.Component {
 
 
     getCustomSelectButton() {
-        const { options, onChangeCustom, theme } = this.props;
+        const {
+            getDateTimeRangeInfo, options, onChangeCustom, theme,
+        } = this.props;
         const { open, anchorEl } = this.state;
-        const customButton = this.props.granularityMode === 'custom'
+        const selectedTimeRange = getDateTimeRangeInfo().tr || '';
+        const customButton = selectedTimeRange === 'custom'
             ? (
                 <FlatButton
                     onClick={this.handleClick}
@@ -116,30 +119,19 @@ export default class GranularityModeSelector extends React.Component {
     }
 
     getSelectedGranularityLevel() {
-        // const {
-        //     getTimeRangeName, getDateTimeRangeInfo, getDefaultTimeRange,
-        // } = this.props;
-        // const selectedTimeRange = getTimeRangeName(getDateTimeRangeInfo().tr) || '';
-        // if (this.getHighGranularityOptions().indexOf(selectedTimeRange) > -1) {
-        //     return 'high';
-        // } else if (this.getLowGranularityOptions().indexOf(selectedTimeRange) > -1) {
-        //     return 'low';
-        // } else {
-        //     const defaultValue = getDefaultTimeRange();
-        //     if (this.state.highGranularityOptions().indexOf(defaultValue) > -1) {
-        //         return 'high';
-        //     } else if (this.getLowGranularityOptions().indexOf(defaultValue) > -1) {
-        //         return 'low';
-        //     } else {
-        //         return '';
-        //     }
-        // }
-        const defaultValue = this.props.options.defaultValue || '1 Week';
-
-        if (highGranularityOptions.indexOf(defaultValue) > -1) {
+        const { getTimeRangeName, getDateTimeRangeInfo } = this.props;
+        const selectedTimeRange = getTimeRangeName(getDateTimeRangeInfo().tr) || '';
+        if (highGranularityOptions.indexOf(selectedTimeRange) > -1) {
             return 'high';
-        } else {
+        } else if (lowGranularityOptions.indexOf(selectedTimeRange) > -1) {
             return 'low';
+        } else {
+            const defaultValue = this.props.options.defaultValue || '1 Week';
+            if (highGranularityOptions.indexOf(defaultValue) > -1) {
+                return 'high';
+            } else {
+                return 'low';
+            }
         }
     }
 
@@ -191,11 +183,9 @@ export default class GranularityModeSelector extends React.Component {
     }
 
     generateTabs(granularityMode) {
-        const { theme } = this.props;
-        // const selectedTimeRange = getTimeRangeName(getDateTimeRangeInfo().tr) || '';
-        const selectedTimeRange = this.props.granularityMode;
-        const options = granularityMode === 'high' ? highGranularityOptions
-            : lowGranularityOptions;
+        const { getTimeRangeName, getDateTimeRangeInfo, theme } = this.props;
+        const selectedTimeRange = getTimeRangeName(getDateTimeRangeInfo().tr) || '';
+        const options = granularityMode === 'high' ? highGranularityOptions : lowGranularityOptions;
         return options.map((option) => {
             if (selectedTimeRange === option) {
                 return (

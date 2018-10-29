@@ -19,15 +19,15 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import { RaisedButton } from 'material-ui';
+import Moment from 'moment';
 import DateTimePicker from './DateTimePicker';
-import Moment from "moment";
 
 export default class CustomTimeRangeSelector extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            invalidDateRange: false
+            invalidDateRange: false,
         };
 
         this.startTime = Moment().subtract(1, 'days').toDate();
@@ -39,8 +39,8 @@ export default class CustomTimeRangeSelector extends React.Component {
 
     handleStartTimeChange(date) {
         this.startTime = date;
-        if(Moment(this.startTime).unix() >=
-            Moment(this.endTime).unix()) {
+        if (Moment(this.startTime).unix()
+            >= Moment(this.endTime).unix()) {
             this.setState({ invalidDateRange: true });
         } else {
             this.setState({ invalidDateRange: false });
@@ -49,8 +49,8 @@ export default class CustomTimeRangeSelector extends React.Component {
 
     handleEndTimeChange(date) {
         this.endTime = date;
-        if(Moment(this.startTime).unix() >=
-            Moment(this.endTime).unix()) {
+        if (Moment(this.startTime).unix()
+            >= Moment(this.endTime).unix()) {
             this.setState({ invalidDateRange: true });
         } else {
             this.setState({ invalidDateRange: false });
@@ -65,11 +65,12 @@ export default class CustomTimeRangeSelector extends React.Component {
 
     render() {
         const { theme } = this.props;
+        const { invalidDateRange } = this.state;
         return (
             <div
                 style={{ marginTop: 10 }}
             >
-                <div style={{ display: 'flex'}}>
+                <div style={{ display: 'flex' }}>
                     <div
                         style={{
                             width: '50%',
@@ -81,7 +82,7 @@ export default class CustomTimeRangeSelector extends React.Component {
                         <DateTimePicker
                             onChange={this.handleStartTimeChange}
                             theme={theme}
-                            initTime = {Moment().subtract(1, 'days')}
+                            initTime={Moment().subtract(1, 'days')}
                             inputName='startTime'
                         />
                     </div>
@@ -96,14 +97,18 @@ export default class CustomTimeRangeSelector extends React.Component {
                         <DateTimePicker
                             onChange={this.handleEndTimeChange}
                             theme={theme}
-                            initTime = {Moment()}
+                            initTime={Moment()}
                             inputName='endTime'
                             startTime={this.startTime}
                         />
                     </div>
                 </div>
-                {this.state.invalidDateRange ? <div style={{color: '#dc3545', paddingTop: 10}}>
-                    Invalid date range, Please select a valid date range. </div> : ''}
+                {invalidDateRange ? (
+                    <div style={{ color: '#dc3545', paddingTop: 10 }}>
+                    Invalid date range, Please select a valid date range.
+                        {' '}
+                    </div>
+                ) : ''}
                 <RaisedButton
                     primary
                     style={{
@@ -111,7 +116,7 @@ export default class CustomTimeRangeSelector extends React.Component {
                         marginBottom: 10,
                         float: 'right',
                     }}
-                    disabled={this.state.invalidDateRange}
+                    disabled={invalidDateRange}
                     onClick={this.publishCustomTimeRange}
                 >
                     Apply

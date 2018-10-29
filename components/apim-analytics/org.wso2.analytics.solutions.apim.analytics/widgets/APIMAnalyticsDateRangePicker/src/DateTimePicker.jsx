@@ -16,19 +16,20 @@
  *  under the License.
  */
 
-/* eslint-disable react/prop-types,comma-dangle */
+/* eslint-disable react/prop-types,comma-dangle,react/destructuring-assignment */
 import React from 'react';
-import {MenuItem, SelectField} from 'material-ui';
+import { MenuItem, SelectField } from 'material-ui';
 import moment from 'moment';
 
 export default class DateTimePicker extends React.Component {
     constructor(props) {
         super(props);
+        const { initTime } = this.props;
         this.state = {
-            year: this.props.initTime.year(),
-            month: this.props.initTime.month(),
-            days: this.props.initTime.date(),
-            time: this.props.initTime.format('HH:mm:ss.000'),
+            year: initTime.year(),
+            month: initTime.month(),
+            days: initTime.date(),
+            time: initTime.format('HH:mm:ss.000'),
         };
 
         this.generateDays = this.generateDays.bind(this);
@@ -75,8 +76,8 @@ export default class DateTimePicker extends React.Component {
                     );
                 }
                 if (this.state.days < startDate) {
-                    this.setState({days: startDate + 1});
-                    this.handleOnChange('days', startDate + 1)
+                    this.setState({ days: startDate + 1 });
+                    this.handleOnChange('days', startDate + 1);
                 }
             } else {
                 for (let i = 1; i <= days; i++) {
@@ -111,7 +112,8 @@ export default class DateTimePicker extends React.Component {
             }
         } else if (inputName === 'endTime') {
             const start = moment(startTime);
-            const yearDiff = this.state.year - start.year();
+            const { year } = this.state;
+            const yearDiff = year - start.year();
             if (yearDiff <= 0) {
                 const startMonth = start.month();
                 for (let i = startMonth; i < monthArray.length; i++) {
@@ -123,9 +125,10 @@ export default class DateTimePicker extends React.Component {
                         />
                     );
                 }
-                if (this.state.month < startMonth) {
-                    this.setState({month: startMonth});
-                    this.handleOnChange('month', startMonth)
+                const { month } = this.state;
+                if (month < startMonth) {
+                    this.setState({ month: startMonth });
+                    this.handleOnChange('month', startMonth);
                 }
             } else if (yearDiff > 0) {
                 for (let i = 0; i < monthArray.length; i++) {
@@ -167,9 +170,10 @@ export default class DateTimePicker extends React.Component {
                     />
                 );
             }
-            if (this.state.year < startYear) {
-                this.setState({year: startYear});
-                this.handleOnChange('year', startYear)
+            const { year } = this.state;
+            if (year < startYear) {
+                this.setState({ year: startYear });
+                this.handleOnChange('year', startYear);
             }
         }
 
@@ -177,8 +181,8 @@ export default class DateTimePicker extends React.Component {
     }
 
     handleOnChange(property, value) {
-        const {onChange} = this.props;
-        const {state} = this;
+        const { onChange } = this.props;
+        const { state } = this;
 
         state[property] = value;
         const date = moment(`${state.year}:${(state.month + 1)}:${state.days} ${state.time}`,
@@ -189,14 +193,14 @@ export default class DateTimePicker extends React.Component {
     }
 
     render() {
-        const {year, month, days} = this.state;
-        let {time} = this.state;
-        const {theme, inputName, startTime} = this.props;
+        const { year, month, days } = this.state;
+        const { time } = this.state;
+        const { theme, inputName, startTime } = this.props;
 
         return (
             <div>
                 <div
-                    style={{display: 'inline-block'}}
+                    style={{ display: 'inline-block' }}
                 >
                     <SelectField
                         value={year}
@@ -224,9 +228,9 @@ export default class DateTimePicker extends React.Component {
                     </SelectField>
                 </div>
                 <div>
-                    <br/>
+                    <br />
                     Time
-                    <br/>
+                    <br />
                     <div>
                         <div>
                             <input

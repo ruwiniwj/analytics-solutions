@@ -60,7 +60,7 @@ export default class APIMAnalyticsDateRangePicker extends Widget {
             id: props.widgetID,
             width: props.glContainer.width,
             height: props.glContainer.height,
-            granularityMode: this.props.configs.options.defaultValue || '1 Week',
+            granularityMode: null,
             granularityValue: '',
             options: this.props.configs.options,
             enableSync: false,
@@ -88,6 +88,10 @@ export default class APIMAnalyticsDateRangePicker extends Widget {
         super.publish(message);
     }
 
+    getDateTimeRangeInfo() {
+        return super.getGlobalState('apim-dtrp');
+    }
+
     handleGranularityChange(mode) {
         this.clearRefreshInterval();
         const startTime = this.getStartTime(mode);
@@ -99,8 +103,8 @@ export default class APIMAnalyticsDateRangePicker extends Widget {
         this.setRefreshInterval();
         this.setState({
             granularityMode: mode,
-            startTime: startTime,
-            endTime: endTime,
+            startTime,
+            endTime,
         });
     }
 
@@ -157,9 +161,152 @@ export default class APIMAnalyticsDateRangePicker extends Widget {
         return startTime;
     }
 
+    loadDefaultTimeRange() {
+        const dateTimeRangeInfo = this.getDateTimeRangeInfo();
+        const defaultTimeRange = this.state.options.defaultValue || '1 Week';
+        if (dateTimeRangeInfo.tr) {
+            if (dateTimeRangeInfo.tr.toLowerCase() === 'custom') {
+                if (dateTimeRangeInfo.sd
+                    && dateTimeRangeInfo.ed) {
+                    this.loadUserSpecifiedCustomTimeRange(dateTimeRangeInfo.sd, dateTimeRangeInfo.ed);
+                } else {
+                    this.handleGranularityChange(defaultTimeRange);
+                }
+            } else {
+                if (dateTimeRangeInfo.sync) {
+                    this.setState({
+                        enableSync: true,
+                        btnType: <NotificationSync color='#f17b31' />,
+                    });
+                }
+                this.loadUserSpecifiedTimeRange(dateTimeRangeInfo.tr);
+            }
+        } else {
+            this.handleGranularityChange(defaultTimeRange);
+        }
+    }
+
+    loadUserSpecifiedCustomTimeRange(start, end) {
+        const startAndEndTime = this.formatTimeRangeDetails(start, end);
+        if (startAndEndTime != null) {
+            this.clearRefreshInterval();
+            this.publishTimeRange({
+                from: startAndEndTime.startTime,
+                to: startAndEndTime.endTime,
+            });
+            this.setState({
+                granularityMode: 'custom',
+                startTime: Moment(startAndEndTime.startTime).toDate(),
+                endTime: Moment(startAndEndTime.endTime).toDate(),
+            });
+        } else {
+            this.handleGranularityChange(this.state.options.defaultValue || '1 Week');
+        }
+    }
+
+    loadUserSpecifiedTimeRange(range) {
+        const timeRange = this.getTimeRangeName(range);
+        if (timeRange.length > 0) {
+            this.clearRefreshInterval();
+            this.handleGranularityChange(timeRange);
+        } else {
+            this.handleGranularityChange(this.state.options.defaultValue || '1 Week');
+        }
+    }
+
+    getTimeRangeName(timeRange) {
+        let name = '';
+        if (timeRange) {
+            const rangeParts = (timeRange.toLowerCase().match(/[0-9]+|[a-z]+/g) || []);
+            if (rangeParts.length === 2) {
+                switch (rangeParts[0] + ' ' + rangeParts[1]) {
+                    case '1 min':
+                        name = '1 Min';
+                        break;
+                    case '15 min':
+                        name = '15 Min';
+                        break;
+                    case '1 hour':
+                        name = '1 Hour';
+                        break;
+                    case '1 day':
+                        name = '1 Day';
+                        break;
+                    case '1 week':
+                        name = '1 Week';
+                        break;
+                    case '2 weeks':
+                        name = '2 Weeks';
+                        break;
+                    case '1 month':
+                        name = '1 Month';
+                        break;
+                    case '3 months':
+                        name = '3 Months';
+                        break;
+                    case '6 months':
+                        name = '6 Months';
+                        break;
+                    case '1 year':
+                        name = '1 Year';
+                        break;
+                    default:
+                    // do nothing
+                }
+            }
+        }
+        return name;
+    }
+
+    formatTimeRangeDetails(startTime, endTime) {
+        let start = null;
+        let end = null;
+        let result = null;
+
+        const startTimeFormat = this.getDateTimeFormat(startTime);
+        const endTimeFormat = this.getDateTimeFormat(endTime);
+
+
+        if (startTimeFormat != null && endTimeFormat != null) {
+            start = Moment(startTime, startTimeFormat).valueOf();
+            end = Moment(endTime, endTimeFormat).valueOf();
+            if (start !== 'Invalid date' && end !== 'Invalid date') {
+                result = { startTime: start, endTime: end };
+            }
+        }
+        return result;
+    }
+
+    getDateTimeFormat(dateTime) {
+        const dateTimeParts = dateTime.split(' ');
+        let timeFormat = null;
+        if (dateTimeParts.length > 1) {
+            timeFormat = 'hh:mm:ss A';
+        }
+        const dateParts = dateTimeParts[0].split('-');
+        let dateFormat = null;
+
+        if (dateParts.length === 3) {
+            dateFormat = 'YYYY-MMM-DD';
+        } else if (dateParts.length === 2) {
+            dateFormat = 'YYYY-MMM';
+        } else if (dateParts.length === 1) {
+            dateFormat = 'YYYY';
+        }
+
+        if (dateFormat != null) {
+            if (timeFormat != null) {
+                return dateFormat + ' ' + timeFormat;
+            } else {
+                return dateFormat;
+            }
+        } else {
+            return null;
+        }
+    }
+
     componentDidMount() {
-        const { options } = this.state;
-        this.handleGranularityChange(options.defaultValue || '1 Week');
+        this.loadDefaultTimeRange();
     }
 
     componentWillUnmount() {
@@ -186,7 +333,8 @@ export default class APIMAnalyticsDateRangePicker extends Widget {
                                 onChange={this.handleGranularityChange}
                                 onChangeCustom={this.handleGranularityChangeForCustom}
                                 options={this.state.options}
-                                granularityMode={this.state.granularityMode}
+                                getTimeRangeName={this.getTimeRangeName}
+                                getDateTimeRangeInfo={this.getDateTimeRangeInfo}
                                 theme={this.props.muiTheme}
                                 width={this.state.width}
                                 height={this.state.height}
@@ -206,10 +354,9 @@ export default class APIMAnalyticsDateRangePicker extends Widget {
         };
         if (granularityMode === 'custom') {
             if (this.state.startTime && this.state.endTime) {
-                startAndEnd.startTime =
-                    Moment.unix(this.state.startTime.getTime() / 1000).format('YYYY-MMM-DD hh:mm:ssA');
-                startAndEnd.endTime =
-                    Moment.unix(this.state.endTime.getTime() / 1000).format('YYYY-MMM-DD hh:mm:ss A');
+                startAndEnd.startTime = Moment
+                    .unix(this.state.startTime.getTime() / 1000).format('YYYY-MMM-DD hh:mm:ss A');
+                startAndEnd.endTime = Moment.unix(this.state.endTime.getTime() / 1000).format('YYYY-MMM-DD hh:mm:ss A');
             }
         } else {
             startAndEnd = this.getStartTimeAndEndTimeForTimeIntervalDescriptor(granularityMode);
@@ -217,6 +364,13 @@ export default class APIMAnalyticsDateRangePicker extends Widget {
 
         const { startTime, endTime } = startAndEnd;
         if (granularityMode && startTime && endTime) {
+            this.setQueryParamToURL(
+                granularityMode.replace(' ', '').toLowerCase(),
+                startTime.toLowerCase(),
+                endTime.toLowerCase(),
+                this.state.granularityValue,
+                this.state.enableSync
+            );
             return (
                 <div
                     style={{
@@ -338,6 +492,15 @@ export default class APIMAnalyticsDateRangePicker extends Widget {
         clearInterval(this.state.refreshIntervalId);
         this.setState({
             refreshIntervalId: null,
+        });
+    }
+
+    setQueryParamToURL(timeRange, startTime, endTime, granularity, autoSync) {
+        super.setGlobalState('apim-dtrp', {
+            tr: timeRange,
+            sd: startTime,
+            ed: endTime,
+            sync: autoSync,
         });
     }
 }
