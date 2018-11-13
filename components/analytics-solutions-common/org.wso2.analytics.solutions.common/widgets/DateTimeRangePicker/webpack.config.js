@@ -81,5 +81,5 @@ module.exports = {
         contentBase: path.join(__dirname, 'public'),
         publicPath: '/dist/',
     },
-    externals: { react: 'React' },
+    externals: { react: 'React', 'react-dom': 'ReactDOM' },
 };

@@ -110,7 +110,19 @@ export default class DateRangePicker extends Widget {
     }
 
     publishTimeRange(message) {
-        super.publish(message);
+        const { options } = this.state;
+        let { displayGranularity } = options;
+        if (displayGranularity === undefined) {
+            displayGranularity = true;
+        }
+        if (displayGranularity) {
+            super.publish(message);
+        } else {
+            super.publish({
+                from: message.from,
+                to: message.to
+            });
+        }
     }
 
     getDateTimeRangeInfo() {
@@ -179,6 +191,10 @@ export default class DateRangePicker extends Widget {
                 startTime = Moment().subtract(7, 'days').toDate();
                 granularity = 'day';
                 break;
+            case '2 Weeks':
+                startTime = Moment().subtract(2, 'weeks').toDate();
+                granularity = 'day';
+                break;
             case '1 Month':
                 startTime = Moment().subtract(1, 'months').toDate();
                 granularity = 'day';
@@ -218,14 +234,14 @@ export default class DateRangePicker extends Widget {
         switch (minGranularity) {
             case 'From Second':
             case 'From Minute':
-                availableViews = ['1 Min', '15 Min', '1 Hour', '1 Day', '7 Days', '1 Month', '3 Months',
+                availableViews = ['1 Min', '15 Min', '1 Hour', '1 Day', '7 Days', '2 Weeks', '1 Month', '3 Months',
                     '6 Months', '1 Year'];
                 break;
             case 'From Hour':
-                availableViews = ['1 Hour', '1 Day', '7 Days', '1 Month', '3 Months', '6 Months', '1 Year'];
+                availableViews = ['1 Hour', '1 Day', '7 Days', '2 Weeks', '1 Month', '3 Months', '6 Months', '1 Year'];
                 break;
             case 'From Day':
-                availableViews = ['1 Day', '7 Days', '1 Month', '3 Months', '6 Months', '1 Year'];
+                availableViews = ['1 Day', '7 Days', '2 Weeks', '1 Month', '3 Months', '6 Months', '1 Year'];
                 break;
             case 'From Month':
                 availableViews = ['1 Month', '3 Months', '6 Months', '1 Year'];
@@ -365,6 +381,9 @@ export default class DateRangePicker extends Widget {
                         break;
                     case '7 days':
                         name = '7 Days';
+                        break;
+                    case '2 weeks':
+                        name = '2 Weeks';
                         break;
                     case '1 month':
                         name = '1 Month';
@@ -553,6 +572,11 @@ export default class DateRangePicker extends Widget {
         }
 
         const { startTime, endTime } = startAndEnd;
+        const { options } = this.state;
+        let { displayGranularity } = options;
+        if (displayGranularity === undefined) {
+            displayGranularity = true;
+        }
         if (granularityMode && startTime && endTime) {
             this.setQueryParamToURL(
                 granularityMode.replace(' ', '').toLowerCase(),
@@ -578,9 +602,9 @@ export default class DateRangePicker extends Widget {
                         {`${startTime}`}
                         <span style={{ color: '#828282' }}> to </span>
                         {`${endTime}`}
-                        <span style={{ color: '#828282' }}> per </span>
+                        {displayGranularity ? <span style={{ color: '#828282' }}> per </span> : ''}
                     </div>
-                    {this.generateGranularitySelector()}
+                    {displayGranularity && this.generateGranularitySelector()}
                     <FlatButton
                         label='Auto-Sync'
                         icon={this.state.btnType}
@@ -620,6 +644,10 @@ export default class DateRangePicker extends Widget {
                 break;
             case '7 Days':
                 startTime = Moment().subtract(7, 'days').format('YYYY-MMM-DD');
+                endTime = Moment().format('YYYY-MMM-DD');
+                break;
+            case '2 Weeks':
+                startTime = Moment().subtract(2, 'weeks').format('YYYY-MMM-DD');
                 endTime = Moment().format('YYYY-MMM-DD');
                 break;
             case '1 Month':
@@ -743,14 +771,14 @@ export default class DateRangePicker extends Widget {
         switch (minGranularity) {
             case 'From Second':
             case 'From Minute':
-                timeRanges = ['1 Min', '15 Min', '1 Hour', '1 Day', '7 Days', '1 Month', '3 Months',
+                timeRanges = ['1 Min', '15 Min', '1 Hour', '1 Day', '7 Days', '2 Weeks', '1 Month', '3 Months',
                     '6 Months', '1 Year'];
                 break;
             case 'From Hour':
-                timeRanges = ['1 Hour', '1 Day', '7 Days', '1 Month', '3 Months', '6 Months', '1 Year'];
+                timeRanges = ['1 Hour', '1 Day', '7 Days', '2 Weeks', '1 Month', '3 Months', '6 Months', '1 Year'];
                 break;
             case 'From Day':
-                timeRanges = ['1 Day', '7 Days', '1 Month', '3 Months', '6 Months', '1 Year'];
+                timeRanges = ['1 Day', '7 Days', '2 Weeks', '1 Month', '3 Months', '6 Months', '1 Year'];
                 break;
             case 'From Month':
                 timeRanges = ['1 Month', '3 Months', '6 Months', '1 Year'];
@@ -804,6 +832,7 @@ export default class DateRangePicker extends Widget {
                 break;
             case '1 Day':
             case '7 Days':
+            case '2 Weeks':
                 supportedGranularities = ['Second', 'Minute', 'Hour', 'Day'];
                 break;
             case '1 Month':

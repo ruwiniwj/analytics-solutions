@@ -7,9 +7,9 @@
     "lodash": "^4.17.10",
     "material-ui": "^0.20.0",
     "moment": "^2.22.1",
-    "react": "^16.1.1",
+    "react": "^16.4.0",
     "react-custom-scrollbars": "^4.2.1",
-    "react-dom": "^16.1.1",
+    "react-dom": "^16.4.0",
     "react-jss": "^8.6.1",
     "rimraf": "^2.6.2"
   },

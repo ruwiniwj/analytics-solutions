@@ -19,8 +19,8 @@
 
 import React from 'react';
 import { MenuItem, SelectField, RaisedButton } from 'material-ui';
+import Moment from 'moment';
 import DateTimePicker from './DateTimePicker';
-import Moment from "moment";
 
 export default class CustomTimeRangeSelector extends React.Component {
     constructor(props) {
@@ -28,7 +28,7 @@ export default class CustomTimeRangeSelector extends React.Component {
 
         this.state = {
             inputType: this.getDefaultGranularity(),
-            invalidDateRange: false
+            invalidDateRange: false,
         };
 
         this.startTime = Moment().subtract(1, 'days').toDate();
@@ -44,29 +44,37 @@ export default class CustomTimeRangeSelector extends React.Component {
 
     getDefaultGranularity() {
         const { options } = this.props;
-        const minGranularity = options.availableGranularities || 'From Second';
+        let { displayGranularity } = options;
+        if (displayGranularity === undefined) {
+            displayGranularity = true;
+        }
         let defaultGranularity = '';
-        switch (minGranularity) {
-            case 'From Second':
-                defaultGranularity = 'second';
-                break;
-            case 'From Minute':
-                defaultGranularity = 'minute';
-                break;
-            case 'From Hour':
-                defaultGranularity = 'hour';
-                break;
-            case 'From Day':
-                defaultGranularity = 'day';
-                break;
-            case 'From Month':
-                defaultGranularity = 'month';
-                break;
-            case 'From Year':
-                defaultGranularity = 'year';
-                break;
-            default:
-            // do nothing
+        if (displayGranularity) {
+            const minGranularity = options.availableGranularities || 'From Second';
+            switch (minGranularity) {
+                case 'From Second':
+                    defaultGranularity = 'second';
+                    break;
+                case 'From Minute':
+                    defaultGranularity = 'minute';
+                    break;
+                case 'From Hour':
+                    defaultGranularity = 'hour';
+                    break;
+                case 'From Day':
+                    defaultGranularity = 'day';
+                    break;
+                case 'From Month':
+                    defaultGranularity = 'month';
+                    break;
+                case 'From Year':
+                    defaultGranularity = 'year';
+                    break;
+                default:
+                // do nothing
+            }
+        } else {
+            defaultGranularity = 'second';
         }
         return defaultGranularity;
     }
@@ -102,8 +110,8 @@ export default class CustomTimeRangeSelector extends React.Component {
 
     handleStartTimeChange(date) {
         this.startTime = date;
-        if(Moment(this.startTime,'YYYY-MM-DD HH:mm:ss.000').unix() >=
-            Moment(this.endTime,'YYYY-MM-DD HH:mm:ss.000').unix()) {
+        if (Moment(this.startTime, 'YYYY-MM-DD HH:mm:ss.000').unix()
+            >= Moment(this.endTime, 'YYYY-MM-DD HH:mm:ss.000').unix()) {
             this.setState({ invalidDateRange: true });
         } else {
             this.setState({ invalidDateRange: false });
@@ -112,8 +120,8 @@ export default class CustomTimeRangeSelector extends React.Component {
 
     handleEndTimeChange(date) {
         this.endTime = date;
-        if(Moment(this.startTime,'YYYY-MM-DD HH:mm:ss.000').unix() >=
-            Moment(this.endTime,'YYYY-MM-DD HH:mm:ss.000').unix()) {
+        if (Moment(this.startTime, 'YYYY-MM-DD HH:mm:ss.000').unix()
+            >= Moment(this.endTime, 'YYYY-MM-DD HH:mm:ss.000').unix()) {
             this.setState({ invalidDateRange: true });
         } else {
             this.setState({ invalidDateRange: false });
@@ -137,28 +145,35 @@ export default class CustomTimeRangeSelector extends React.Component {
     }
 
     render() {
-        const { inputType } = this.state;
-        const { theme } = this.props;
+        const { inputType, invalidDateRange } = this.state;
+        const { theme, options } = this.props;
+        let { displayGranularity } = options;
+        if (displayGranularity === undefined) {
+            displayGranularity = true;
+        }
         return (
             <div
                 style={{ marginTop: 10 }}
             >
-                <div
-                    style={{ marginBottom: 10 }}
-                >
-                    Per
-                    <br />
-                    <SelectField
-                        className="perUnderline"
-                        value={inputType}
-                        onChange={(event, index, value) => {
-                            this.setState({ inputType: value });
-                        }}
+                {displayGranularity
+                && (
+                    <div
+                        style={{ marginBottom: 10 }}
                     >
-                        {this.generateGranularityMenuItems()}
-                    </SelectField>
-                </div>
-                <div style={{ display: 'flex'}}>
+                    Per
+                        <br />
+                        <SelectField
+                            className="perUnderline"
+                            value={inputType}
+                            onChange={(event, index, value) => {
+                                this.setState({ inputType: value });
+                            }}
+                        >
+                            {this.generateGranularityMenuItems()}
+                        </SelectField>
+                    </div>
+                )}
+                <div style={{ display: 'flex' }}>
                     <div
                         style={{
                             width: '50%',
@@ -171,7 +186,7 @@ export default class CustomTimeRangeSelector extends React.Component {
                             onChange={this.handleStartTimeChange}
                             inputType={inputType}
                             theme={theme}
-                            initTime = {Moment().subtract(1, 'days')}
+                            initTime={Moment().subtract(1, 'days')}
                             inputName='startTime'
                         />
                     </div>
@@ -187,14 +202,18 @@ export default class CustomTimeRangeSelector extends React.Component {
                             onChange={this.handleEndTimeChange}
                             inputType={inputType}
                             theme={theme}
-                            initTime = {Moment()}
+                            initTime={Moment()}
                             inputName='endTime'
                             startTime={this.startTime}
                         />
                     </div>
                 </div>
-                {this.state.invalidDateRange ? <div style={{color: '#dc3545', paddingTop: 10}}>
-                    Invalid date range, Please select a valid date range. </div> : ''}
+                {invalidDateRange ? (
+                    <div style={{ color: '#dc3545', paddingTop: 10 }}>
+                    Invalid date range, Please select a valid date range.
+                        {' '}
+                    </div>
+                ) : ''}
                 <RaisedButton
                     primary
                     style={{
@@ -202,7 +221,7 @@ export default class CustomTimeRangeSelector extends React.Component {
                         marginBottom: 10,
                         float: 'right',
                     }}
-                    disabled={this.state.invalidDateRange}
+                    disabled={invalidDateRange}
                     onClick={this.publishCustomTimeRange}
                 >
                     Apply

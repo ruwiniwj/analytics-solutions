@@ -68,6 +68,18 @@
           "name": "TEXT"
         },
         "defaultValue": "10"
+      },
+      {
+        "id": "displayGranularity",
+        "title": "Display Granularity",
+        "type": {
+          "name": "BOOLEAN",
+          "possibleValues": [
+            true,
+            false
+          ]
+        },
+        "defaultValue": true
       }
     ]
   }

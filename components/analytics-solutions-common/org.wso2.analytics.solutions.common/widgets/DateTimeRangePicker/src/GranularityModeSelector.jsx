@@ -84,7 +84,7 @@ export default class GranularityModeSelector extends React.Component {
             case 'From Minute':
             case 'From Hour':
             case 'From Day':
-                granularityOptions = ['1 Day', '7 Days', '1 Month', '3 Months', '6 Months', '1 Year'];
+                granularityOptions = ['1 Day', '7 Days', '2 Weeks', '1 Month', '3 Months', '6 Months', '1 Year'];
                 break;
             case 'From Month':
                 granularityOptions = ['1 Month', '3 Months', '6 Months', '1 Year'];
